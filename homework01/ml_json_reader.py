@@ -28,6 +28,15 @@ def check_hemisphere(latitude: float, longitude: float) -> str:
         location.append(f'{location} & Western')
     return(location)
 
+def mass_statistics(list_of_dictionary, key_word):
+    total_mass = 0
+    masses = []
+    for p in range(len(list_of_dictionary)):
+        total_mass += float(list_of_dictionary[p][key_word])
+        masses.append(float(list_of_dictionary[p][key_word]))
+    mass_stats = [total_mass/len(list_of_dictionary), max(masses), min(masses)]
+
+    return mass_stats
 
 
 with open('Meteorite_Landings.json', 'r') as f:
@@ -54,6 +63,16 @@ for phrase in updated_hemisphere_list:
     else:
         grouping_dict[phrase] = 1
 
-print('The Part of the Hemisphere that the Meteorites Have Landed in are: ')
+print('The Number of Times a Meteorite has Landed in each of the following Hemispheres is: ')
 print(grouping_dict)
 
+
+mass_data = mass_statistics(ml_data['meteorite_landings'],'mass (g)')
+print('The Average Mass of All Meteorites Recorded is: ')
+print(f"{mass_data[0]} g")
+
+print('The Heaviest Meteorite is: ')
+print(f"{mass_data[1]} g")
+
+print('The Lightest Meteorite is: ')
+print(f"{mass_data[2]} g")
