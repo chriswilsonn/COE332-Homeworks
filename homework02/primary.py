@@ -7,6 +7,18 @@ import logging
 logging.basicConfig()
 
 def valid_numerical_data(list_of_dicts: List[dict], key_string: str) -> dict:
+    '''
+    Iterates through a list of dictionaries and finds values associated with the inputted key. Checks to see if the valu    es found are numeric or not. If there is an empty string or non-numeric value, that is considered invalid. 
+
+    Args:
+        list_of_dicts (list): a list of dictionaries that have the same set of keys
+
+        key_string (string): a key that appears in each dictionary 
+
+    Returns:
+        answer_dict (dictionary): shows the number of valid and invalid rows
+
+    '''
     data_vals = []
     valid_count = 0
     invalid_count = 0
