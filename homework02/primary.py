@@ -26,7 +26,9 @@ def valid_numerical_data(list_of_dicts: List[dict], key_string: str) -> dict:
     for i in range(len(list_of_dicts)):
         try:
             value = list_of_dicts[i][key_string]
-            if value.strip():
+            if isinstance(value, (int, float)):
+                valid_count += 1
+            elif value.strip():
                 data_vals.append(int(value))
                 valid_count += 1
             else:
@@ -35,7 +37,8 @@ def valid_numerical_data(list_of_dicts: List[dict], key_string: str) -> dict:
         except ValueError:
             logging.error(f"Non-numeric value in row {i}")
             invalid_count += 1
-    
+        
+
     answer_dict = {
             "Valid Rows": valid_count,
             "Invalid Rows": invalid_count}
@@ -59,8 +62,12 @@ def top_three_years(list_of_dictionaries: List[dict], key: str) -> tuple[list, l
     counts = []
     for j in range(len(list_of_dictionaries)):
         date_str.append(list_of_dictionaries[j][key][:-19])
-    
+        if date_str[j] == '':
+            logging.error('Date found is in incorrect format. It must look like this: 1880-01-01T00:00:00.000')
+
+
     unique, occurances = np.unique(date_str, return_counts = True)
+
 
     try:
         sorted_indx = np.argsort(occurances)[::-1][:3]
@@ -137,6 +144,8 @@ def main():
     
     print(f" The distance the two meteorites are from each other in km is {landing_distance(data['meteorite_landings'], 'Aire-sur-la-Lys', 'Al Zarnkh')}")
     
+    pprint(data['meteorite_landings'][0])
+
 
 if __name__ == '__main__':
     main()
