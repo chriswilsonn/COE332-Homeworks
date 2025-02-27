@@ -6,7 +6,37 @@ import xmltodict
 import time
 from datetime import datetime
 import math
-                                                                                                                                                                                   def year_range(list_of_dicts: List[dict], key_str: str) -> tuple[str, str]:
+from flask import Flask
+
+app = Flask(__name__)
+          
+
+@app.route('/epochs', methods = ['GET'])
+def entire_dataset():
+    response = requests.get(url = 'https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml')
+    data = xmltodict.parse(response.content.decode('utf-8')) # used AI to find right format
+    json_data = json.dumps(data, indent = 2)
+    dict_data = json.loads(json_data)
+    state_data = [] #list of dics
+    updated_state_data = []
+    for i in range(len(dict_data["ndm"]["oem"]["body"]["segment"]["data"]["stateVector"])):
+        state_data.append(dict_data["ndm"]["oem"]["body"]["segment"]["data"]["stateVector"][i])
+    
+    epoch1 = request.args.get('limit')
+    epoch2 = request.args.get('offset')
+
+    if epoch1 is None or epoch2 is None:
+        print('No query parameters provided')
+        return state_data
+    else:
+        if epoch1.isnumeric() and epoch2.isnumeric() and epoch1 <= len(state_data) and epoch2 <= len(state_data):
+            return state_data[epoch1], state_data[epoch2]
+        else:
+            return 'limit and offset query parameters are either not integers or are out of the range of the dataset'
+
+            
+
+def year_range(list_of_dicts: List[dict], key_str: str) -> tuple[str, str]:
     '''
      Iterates through a list of dictionaries and finds the first and last values associated with the inputted key. Converts the datetime variables into a Month - Day - Year form a     and returns the date range for which the dataset is applicable.
 
@@ -84,21 +114,6 @@ def speed(list_of_dicts: List[dict]) -> tuple[int, int]:
 
     return average_speed, current_speed
 
-def main():
-    response = requests.get(url = 'https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml')
-    data = xmltodict.parse(response.content.decode('utf-8')) # used AI to find right format
-    json_data = json.dumps(data, indent = 2)
-    dict_data = json.loads(json_data)
-    state_data = [] #list of dics
-    for i in range(len(dict_data["ndm"]["oem"]["body"]["segment"]["data"]["stateVector"])):
-        state_data.append(dict_data["ndm"]["oem"]["body"]["segment"]["data"]["stateVector"][i])
-
-    print(f"The data in this dataset is from {year_range(state_data,'EPOCH')[0]} to {year_range(state_data,'EPOCH')[1]}")
-    print(matching_time(state_data,'EPOCH'))
-    print(f"The average speed of the ISS based on this dataset is {speed(state_data)[0]} km/s and the current speed is {speed(state_data)[1]} km/s. If the current speed is 0, that means no matches were found for the current date." )
-    pprint(state_data)
-
 
 if __name__ == '__main__':
-    main()
-
+    app.run(debug=True, host='0.0.0.0')
